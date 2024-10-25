@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "966851357180",
+    "project_id": "astrum-test-app",
+    "storage_bucket": "astrum-test-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966851357180:android:cfd95548959b26c9cb6a79",
+        "android_client_info": {
+          "package_name": "com.example.astrum_test_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwNbwAOPjyE2G5unONRpGujXcVPc58_hI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

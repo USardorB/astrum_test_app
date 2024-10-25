@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"astrum-test-app","appId":"1:966851357180:android:cfd95548959b26c9cb6a79","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"astrum-test-app","configurations":{"android":"1:966851357180:android:cfd95548959b26c9cb6a79","web":"1:966851357180:web:11625b302aafc66acb6a79"}}}}}}
