@@ -1,3 +1,4 @@
+import 'package:astrum_test_app/extensions/num_extensions.dart';
 import 'package:flutter/material.dart';
 
 class HistoryItem extends StatelessWidget {
@@ -20,7 +21,7 @@ class HistoryItem extends StatelessWidget {
         border: Border.all(color: Colors.amber),
       ),
       child: ListTile(
-        title: Text('$distance km'),
+        title: Text('${(distance / 1000).scaleToH} km'),
         subtitle: Text('$fare UZS'),
         trailing: Text(date),
       ),

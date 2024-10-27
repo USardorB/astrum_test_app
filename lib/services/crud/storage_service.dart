@@ -1,5 +1,5 @@
-import 'package:astrum_test_app/services/storage/record_model.dart';
-import 'package:astrum_test_app/services/storage/storage_constants.dart';
+import 'package:astrum_test_app/services/crud/record_model.dart';
+import 'package:astrum_test_app/services/crud/storage_constants.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,9 +19,11 @@ class StorageService {
   }
 
   // When the trip starts we create and update on the way
-  Future<void> createRecord(RecordModel note) async {
+  Future<int> createRecord(RecordModel note) async {
     final db = _getDatabaseOrThrow();
-    await db.insert(tableName, note.toRow());
+    final id = await db.insert(tableName, note.toRow());
+
+    return id;
   }
 
   // To show in the history page
@@ -36,7 +38,7 @@ class StorageService {
     final db = _getDatabaseOrThrow();
     await db.update(
       tableName,
-      note.toRow(),
+      {distanceColumn: note.distance},
       where: 'id = ?',
       whereArgs: [note.id],
     );

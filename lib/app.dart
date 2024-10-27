@@ -1,7 +1,7 @@
 import 'package:astrum_test_app/services/auth/bloc/auth_bloc.dart';
 import 'package:astrum_test_app/services/auth/firebase_auth_provider.dart';
 import 'package:astrum_test_app/services/location/cubit/trip_cubit.dart';
-import 'package:astrum_test_app/services/storage/bloc/storage_bloc.dart';
+import 'package:astrum_test_app/services/crud/bloc/storage_bloc.dart';
 import 'package:astrum_test_app/views/auth/onboarding_view.dart';
 import 'package:astrum_test_app/views/home/home_page.dart';
 import 'package:flutter/material.dart';
@@ -60,12 +60,20 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class RootPage extends StatelessWidget {
+final rootPageKey = GlobalKey<_RootPageState>();
+
+class RootPage extends StatefulWidget {
   const RootPage({super.key});
 
   @override
+  State<RootPage> createState() => _RootPageState();
+}
+
+class _RootPageState extends State<RootPage> {
+  @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInit());
+    context.read<TripCubit>().askForLocationPermissions();
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (BuildContext context, AuthState state) {
         state.shouldPop ? Navigator.pop(context) : null;

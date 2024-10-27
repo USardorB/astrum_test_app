@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:astrum_test_app/services/auth/auth_provider.dart';
 import 'package:astrum_test_app/services/auth/auth_user.dart';
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 
 part 'auth_event.dart';

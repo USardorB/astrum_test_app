@@ -1,7 +1,7 @@
 import 'package:astrum_test_app/services/auth/bloc/auth_bloc.dart';
 import 'package:astrum_test_app/services/location/cubit/trip_cubit.dart';
-import 'package:astrum_test_app/services/storage/bloc/storage_bloc.dart';
-import 'package:astrum_test_app/services/storage/record_model.dart';
+import 'package:astrum_test_app/services/crud/bloc/storage_bloc.dart';
+import 'package:astrum_test_app/services/crud/record_model.dart';
 import 'package:astrum_test_app/views/history/history_view.dart';
 import 'package:astrum_test_app/views/home/bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final MapController _mapController;
-  bool hasSubscribed = false;
+  int id = 0;
   @override
   void initState() {
     context.read<StorageBloc>().add(const StorageEventInit());
@@ -37,9 +37,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return BlocConsumer<TripCubit, TripState>(
       listener: (BuildContext context, TripState state) async {
-        switch (state.isTracking) {
-          case true:
-            if (!hasSubscribed) {
+        switch (state.status) {
+          case TripStatus.started:
+            if (state.totalDistance == 0.0) {
               context.read<StorageBloc>().add(
                     StorageEventStart(
                       RecordModel(
@@ -50,19 +50,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
             } else {
-              final record = context.read<StorageBloc>().state.records.last;
-              context.read<StorageBloc>().add(
-                    StorageEventStart(
-                      RecordModel(
-                        id: record.id,
-                        distance: state.totalDistance,
-                        date: record.date!,
+              final record =
+                  context.read<StorageBloc>().state.records.lastOrNull;
+              if (record != null) {
+                context.read<StorageBloc>().add(
+                      StorageEventStart(
+                        RecordModel(
+                          id: -5,
+                          distance: state.totalDistance,
+                          date: record.date!,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+              }
             }
-          case null:
-          case false:
+          default:
             break;
         }
       },
@@ -100,16 +102,16 @@ class _HomePageState extends State<HomePage> {
             centerTitle: true,
           ),
           extendBodyBehindAppBar: true,
-          bottomSheet: switch (state.isTracking) {
-            true => UpdatableBottomSheet(
+          bottomSheet: switch (state.status) {
+            TripStatus.started => UpdatableBottomSheet(
                 totalDistance: state.totalDistance,
                 onTap: endTrip,
               ),
-            null => UpdatableBottomSheet(
+            TripStatus.ended => UpdatableBottomSheet(
                 totalDistance: state.totalDistance,
                 onTap: exitTrip,
               ),
-            false => null,
+            _ => null,
           },
           body: FlutterMap(
             options: const MapOptions(
@@ -128,7 +130,7 @@ class _HomePageState extends State<HomePage> {
               ),
               AnimatedAlign(
                 duration: const Duration(milliseconds: 150),
-                alignment: state.isTracking ?? false
+                alignment: state.status == TripStatus.started
                     ? const Alignment(0.88, 0.40)
                     : const Alignment(0.88, 0.68),
                 child: FloatingActionButton(
@@ -142,7 +144,7 @@ class _HomePageState extends State<HomePage> {
               ),
               AnimatedAlign(
                 duration: const Duration(milliseconds: 150),
-                alignment: state.isTracking ?? false
+                alignment: state.status == TripStatus.started
                     ? const Alignment(0, 1)
                     : const Alignment(0, 0.68),
                 child: TextButton(
@@ -173,15 +175,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void startTrip() {
-    hasSubscribed = !hasSubscribed;
     context.read<TripCubit>().startTracking();
   }
 
   void endTrip() {
-    hasSubscribed = !hasSubscribed;
     context.read<TripCubit>().stopTracking();
     context.read<StorageBloc>().add(const StorageEventEnd());
   }
 
-  void exitTrip() => context.read<TripCubit>().resetTrip();
+  void exitTrip() {
+    context.read<TripCubit>().resetTrip();
+  }
 }

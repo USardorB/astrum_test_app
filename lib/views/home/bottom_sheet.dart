@@ -36,8 +36,8 @@ class UpdatableBottomSheet extends StatelessWidget {
           onPressed: onTap,
           child: BlocBuilder<TripCubit, TripState>(
             builder: (context, state) {
-              switch (state.isTracking) {
-                case true:
+              switch (state.status) {
+                case TripStatus.started:
                   return const Text('End the trip');
                 case _:
                   return const Text('Close the sheet');

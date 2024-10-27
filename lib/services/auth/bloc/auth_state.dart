@@ -1,6 +1,6 @@
 part of 'auth_bloc.dart';
 
-final class AuthState extends Equatable {
+final class AuthState {
   final String? error;
   final AuthUser? user;
   final bool shouldPop;
@@ -25,9 +25,6 @@ final class AuthState extends Equatable {
       shouldPop: shouldPop ?? this.shouldPop,
     );
   }
-
-  @override
-  List<Object> get props => [error ?? '', user ?? '', authStatus];
 }
 
 enum AuthStatus { initial, signedIn, signedOut }

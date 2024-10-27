@@ -1,5 +1,5 @@
 import 'package:astrum_test_app/extensions/num_extensions.dart';
-import 'package:astrum_test_app/services/storage/storage_constants.dart';
+import 'package:astrum_test_app/services/crud/storage_constants.dart';
 import 'package:flutter/foundation.dart' show immutable;
 
 @immutable
@@ -16,7 +16,7 @@ class RecordModel {
   })  : distance = distance.scaleToH,
         fare = distance.toInt() * 5
           ..scaleToH,
-        date = '${date.substring(0, 10)}//${date.substring(11, 16)}';
+        date = '${date.substring(0, 10)}/${date.substring(11, 16)}';
 
   RecordModel copyWith(double distance) =>
       RecordModel(id: id, distance: distance, date: date!);

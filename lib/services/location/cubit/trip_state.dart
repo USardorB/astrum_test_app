@@ -2,24 +2,29 @@ part of 'trip_cubit.dart';
 
 class TripState extends Equatable {
   final double totalDistance;
-  final bool? isTracking;
+  final TripStatus status;
   final LatLng? currentLocation;
 
   const TripState({
     this.totalDistance = 0.0,
-    this.isTracking = false,
+    this.status = TripStatus.stable,
     this.currentLocation,
   });
 
-  TripState copyWith(
-      {double? totalDistance, bool? isTracking, LatLng? location}) {
+  TripState copyWith({
+    double? totalDistance,
+    TripStatus? status,
+    LatLng? location,
+  }) {
     return TripState(
       totalDistance: totalDistance ?? this.totalDistance,
-      isTracking: isTracking,
+      status: status ?? this.status,
       currentLocation: location ?? currentLocation,
     );
   }
 
   @override
-  List<Object?> get props => [totalDistance, isTracking, currentLocation];
+  List<Object?> get props => [totalDistance, status, currentLocation];
 }
+
+enum TripStatus { started, ended, stable }

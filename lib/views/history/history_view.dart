@@ -1,4 +1,4 @@
-import 'package:astrum_test_app/services/storage/record_model.dart';
+import 'package:astrum_test_app/services/crud/record_model.dart';
 import 'package:astrum_test_app/views/history/history_item.dart';
 import 'package:flutter/material.dart';
 

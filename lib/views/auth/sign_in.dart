@@ -1,9 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:astrum_test_app/extensions/num_extensions.dart';
 import 'package:astrum_test_app/services/auth/bloc/auth_bloc.dart';
 import 'package:astrum_test_app/views/auth/create_new_account_view.dart';
 import 'package:astrum_test_app/views/auth/form.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignInView extends StatefulWidget {
@@ -53,14 +56,7 @@ class _SignInViewState extends State<SignInView> {
             ),
             const Spacer(flex: 1),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  context.read<AuthBloc>().add(AuthEventSignIn(
-                        email: _email.text,
-                        password: _password.text,
-                      ));
-                }
-              },
+              onPressed: onSignUpPressed,
               child: const Text('Sign In'),
             ),
             24.h,
@@ -85,5 +81,29 @@ class _SignInViewState extends State<SignInView> {
         ),
       ),
     );
+  }
+
+  Future<void> onSignUpPressed() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<AuthBloc>().add(AuthEventSignIn(
+            email: _email.text,
+            password: _password.text,
+          ));
+      await Future.delayed(const Duration(seconds: 5));
+      if (context.read<AuthBloc>().state.authStatus == AuthStatus.signedIn) {
+        ScaffoldMessenger.of(context).showMaterialBanner(
+          MaterialBanner(
+            content: const Text('Please reopen the app'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  child: const Text('Ok')),
+            ],
+          ),
+        );
+      }
+    }
   }
 }

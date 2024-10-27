@@ -10,7 +10,7 @@ class LocationService {
   final List<LatLng> _logOfLatLngs = [];
 
   LocationService._() {
-    _requestLocationPermission();
+    requestLocationPermission();
     _locationStream.listen((latLng) => _logOfLatLngs.add(latLng));
   }
   late final Stream<LatLng> _locationStream = Geolocator.getPositionStream(
@@ -25,7 +25,7 @@ class LocationService {
   List<LatLng> get getLogs => _logOfLatLngs;
 
   Future<LatLng> getCurrentLocation() async {
-    await _requestLocationPermission();
+    await requestLocationPermission();
     final position = await Geolocator.getCurrentPosition();
     return position.toLatLng;
   }
@@ -44,7 +44,7 @@ class LocationService {
     return totalDistance;
   }
 
-  Future<void> _requestLocationPermission() async {
+  Future<bool> requestLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -58,5 +58,8 @@ class LocationService {
     if (!await Geolocator.isLocationServiceEnabled()) {
       await Geolocator.openLocationSettings();
     }
+
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
   }
 }

@@ -14,35 +14,44 @@ class TripCubit extends Cubit<TripState> {
   TripCubit() : super(const TripState());
 
   void startTracking() {
-    emit(state.copyWith(isTracking: true));
+    emit(state.copyWith(status: TripStatus.started));
     _locationSubscription = _locationService.locationStream.listen((event) {
       _locationService.addLog(event);
       _updateDistanceAndEmitState(event);
-    }, onError: (asd) => print(asd));
+    });
+  }
+
+  void askForLocationPermissions() async {
+    bool isPermitted = await _locationService.requestLocationPermission();
+    while (!isPermitted) {
+      isPermitted = await _locationService.requestLocationPermission();
+    }
+    if (isPermitted) await getCurrentLocation();
   }
 
   Future<LatLng> getCurrentLocation() async {
     final location = await _locationService.getCurrentLocation();
-    emit(state.copyWith(
-        location: location, isTracking: false, totalDistance: 0));
+    emit(state.copyWith(location: location));
     return location;
   }
 
   void stopTracking() {
-    _locationSubscription?.cancel();
-    emit(state.copyWith(isTracking: null));
+    emit(state.copyWith(status: TripStatus.ended));
   }
 
   void resetTrip() {
     _locationService.clearLog();
-    emit(const TripState(isTracking: false));
+    emit(TripState(
+      status: TripStatus.stable,
+      currentLocation: state.currentLocation,
+    ));
   }
 
   void _updateDistanceAndEmitState(LatLng x) {
     final totalDistance = _locationService.calculateTotalDistance();
     emit(state.copyWith(
       totalDistance: totalDistance,
-      isTracking: state.isTracking,
+      status: state.status,
       location: x,
     ));
   }
