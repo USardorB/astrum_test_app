@@ -38,9 +38,9 @@ class UpdatableBottomSheet extends StatelessWidget {
             builder: (context, state) {
               switch (state.isTracking) {
                 case true:
-                  return const Text('Завершить поездку');
+                  return const Text('End the trip');
                 case _:
-                  return const Text('закрыть окно');
+                  return const Text('Close the sheet');
               }
             },
           ),

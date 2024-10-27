@@ -25,6 +25,7 @@ class LocationService {
   List<LatLng> get getLogs => _logOfLatLngs;
 
   Future<LatLng> getCurrentLocation() async {
+    await _requestLocationPermission();
     final position = await Geolocator.getCurrentPosition();
     return position.toLatLng;
   }

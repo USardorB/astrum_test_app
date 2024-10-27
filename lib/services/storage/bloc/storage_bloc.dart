@@ -26,7 +26,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
       _records = await _storage.readAllRecords();
       emit(StorageState(records: _records, status: StorageStatus.stable));
     } catch (e) {
-      //
+      print('object');
     }
   }
 
@@ -43,7 +43,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
       _records = await _storage.readAllRecords();
       emit(StorageState(records: _records, status: StorageStatus.updating));
     } catch (_) {
-      //
+      print('object');
     }
   }
 

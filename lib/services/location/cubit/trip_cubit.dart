@@ -11,17 +11,21 @@ class TripCubit extends Cubit<TripState> {
   final LocationService _locationService = LocationService();
   StreamSubscription<LatLng>? _locationSubscription;
 
-  TripCubit()
-      : super(const TripState(currentLocation: LatLng(41.316487, 69.248234)));
+  TripCubit() : super(const TripState());
 
   void startTracking() {
     emit(state.copyWith(isTracking: true));
-    _locationSubscription = _locationService.locationStream.listen(
-      (event) {
-        _locationService.addLog(event);
-        _updateDistanceAndEmitState(event);
-      },
-    );
+    _locationSubscription = _locationService.locationStream.listen((event) {
+      _locationService.addLog(event);
+      _updateDistanceAndEmitState(event);
+    }, onError: (asd) => print(asd));
+  }
+
+  Future<LatLng> getCurrentLocation() async {
+    final location = await _locationService.getCurrentLocation();
+    emit(state.copyWith(
+        location: location, isTracking: false, totalDistance: 0));
+    return location;
   }
 
   void stopTracking() {

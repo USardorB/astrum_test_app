@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:astrum_test_app/services/auth/bloc/auth_bloc.dart';
 import 'package:astrum_test_app/services/location/cubit/trip_cubit.dart';
 import 'package:astrum_test_app/services/storage/bloc/storage_bloc.dart';
+import 'package:astrum_test_app/services/storage/record_model.dart';
+import 'package:astrum_test_app/views/history/history_view.dart';
 import 'package:astrum_test_app/views/home/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,11 +18,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final MapController _mapController;
-
+  bool hasSubscribed = false;
   @override
   void initState() {
     context.read<StorageBloc>().add(const StorageEventInit());
     _mapController = MapController();
+    context.read<TripCubit>().getCurrentLocation();
     super.initState();
   }
 
@@ -35,11 +36,34 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TripCubit, TripState>(
-      listener: (BuildContext context, TripState state) {
-        if (state.totalDistance != 0) {
-          log(state.totalDistance.toString());
-        } else {
-          log('It\'s 0');
+      listener: (BuildContext context, TripState state) async {
+        switch (state.isTracking) {
+          case true:
+            if (!hasSubscribed) {
+              context.read<StorageBloc>().add(
+                    StorageEventStart(
+                      RecordModel(
+                        id: 0,
+                        distance: 0,
+                        date: DateTime.now().toIso8601String(),
+                      ),
+                    ),
+                  );
+            } else {
+              final record = context.read<StorageBloc>().state.records.last;
+              context.read<StorageBloc>().add(
+                    StorageEventStart(
+                      RecordModel(
+                        id: record.id,
+                        distance: state.totalDistance,
+                        date: record.date!,
+                      ),
+                    ),
+                  );
+            }
+          case null:
+          case false:
+            break;
         }
       },
       builder: (context, state) {
@@ -57,7 +81,12 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.history, size: 28, color: Colors.black),
                 onPressed: () {
-                  // Navigator.push(context, HistoryView.route(state.records));
+                  Navigator.push(
+                    context,
+                    HistoryView.route(
+                      context.read<StorageBloc>().state.records,
+                    ),
+                  );
                 },
               ),
               IconButton(
@@ -84,7 +113,8 @@ class _HomePageState extends State<HomePage> {
           },
           body: FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(60, 40),
+              initialCenter: LatLng(41.2, 69.24),
+              initialZoom: 10,
               maxZoom: 23,
               minZoom: 5,
             ),
@@ -102,10 +132,9 @@ class _HomePageState extends State<HomePage> {
                     ? const Alignment(0.88, 0.40)
                     : const Alignment(0.88, 0.68),
                 child: FloatingActionButton(
-                  onPressed: () {
+                  onPressed: () async {
                     _mapController.move(
-                        state.currentLocation ??
-                            const LatLng(41.316487, 69.248234),
+                        await context.read<TripCubit>().getCurrentLocation(),
                         16.5);
                   },
                   child: const Icon(Icons.location_searching),
@@ -119,22 +148,22 @@ class _HomePageState extends State<HomePage> {
                 child: TextButton(
                   onPressed: startTrip,
                   child: const Text(
-                    'Начать поездку',
+                    'Start Trip',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
               MarkerLayer(markers: [
-                Marker(
-                  point: state.currentLocation ??
-                      const LatLng(41.316487, 69.248234),
-                  child: const Icon(
-                    Icons.navigation_rounded,
-                    size: 64,
-                    color: Colors.amber,
-                    shadows: [Shadow(blurRadius: 50)],
+                if (context.watch<TripCubit>().state.currentLocation != null)
+                  Marker(
+                    point: state.currentLocation!,
+                    child: const Icon(
+                      Icons.navigation_rounded,
+                      size: 64,
+                      color: Colors.amber,
+                      shadows: [Shadow(blurRadius: 50)],
+                    ),
                   ),
-                ),
               ]),
             ],
           ),
@@ -144,18 +173,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void startTrip() {
+    hasSubscribed = !hasSubscribed;
     context.read<TripCubit>().startTracking();
-    // context.read<StorageBloc>().add(StorageEventStart(RecordModel(
-    //       id: 0,
-    //       distance: 0,
-    //       date: DateTime.now().toIso8601String(),
-    //     )));
   }
 
   void endTrip() {
+    hasSubscribed = !hasSubscribed;
     context.read<TripCubit>().stopTracking();
-
-    // context.read<StorageBloc>().add(const StorageEventEnd());
+    context.read<StorageBloc>().add(const StorageEventEnd());
   }
 
   void exitTrip() => context.read<TripCubit>().resetTrip();

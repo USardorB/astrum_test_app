@@ -65,6 +65,7 @@ class RootPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<AuthBloc>().add(const AuthEventInit());
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (BuildContext context, AuthState state) {
         state.shouldPop ? Navigator.pop(context) : null;
@@ -85,7 +86,8 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<AuthBloc>().add(const AuthEventInit());
-    return const Scaffold(body: Center(child: Text('We are loading ....')));
+    return const Scaffold(
+      body: Center(child: Text('We are loading ....')),
+    );
   }
 }
